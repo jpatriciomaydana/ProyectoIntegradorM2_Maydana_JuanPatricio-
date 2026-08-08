@@ -12,6 +12,9 @@ app.use('/authors', authorsRouter);
 const postsRouter = require('./routes/posts');
 app.use('/posts', postsRouter);
 
+const errorHandler = require('./middlewares/errorHandler');
+app.use(errorHandler);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

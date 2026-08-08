@@ -2,18 +2,17 @@ const express = require('express');//importa el módulo express para crear rutas
 const router = express.Router();//crea una instancia de Router para definir rutas específicas para los autores
 const authorsService = require('../services/authors');//importa el módulo authorsService que contiene funciones para interactuar con la base de datos de autores
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {//ruta GET para obtener todos los autores
   try {
-    const authors = await authorsService.getAllAuthors();
-    res.json(authors);
-  } catch (err) {
+    const authors = await authorsService.getAllAuthors();//llama a la función getAllAuthors del servicio de autores para obtener todos los autores
+    res.json(authors);//envía la respuesta en formato JSON con la lista de autores
+  } catch (err) {//maneja errores en caso de que ocurra algún problema al obtener los autores
 
-    console.error(err); 
-    res.status(500).json({ error: 'Error al obtener autores' });
+    next(err);//pasa el error al siguiente middleware de manejo de errores
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const author = await authorsService.getAuthorById(req.params.id);
     if (!author) {
@@ -21,12 +20,11 @@ router.get('/:id', async (req, res) => {
     }
     res.json(author);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener autor' });
+    next(err);
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
  try {
     const { name, email, bio } = req.body;//obtiene los datos del autor desde el cuerpo de la solicitud
     if (!name || !email) {
@@ -35,13 +33,11 @@ router.post('/', async (req, res) => {
     const newAuthor = await authorsService.createAuthor(name, email, bio);
     res.status(201).json(newAuthor);
   } catch (err) {
-    
-    console.error(err);
-    res.status(500).json({ error: 'Error al crear autor' });
+    next(err);
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { name, email, bio } = req.body;
 
@@ -55,12 +51,11 @@ router.put('/:id', async (req, res) => {
     }
     res.json(updatedAuthor);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al actualizar autor' });
+    next(err);
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const deletedAuthor = await authorsService.deleteAuthor(req.params.id);
     if (!deletedAuthor) {
@@ -68,8 +63,7 @@ router.delete('/:id', async (req, res) => {
     }   
     res.json({ message: 'Autor eliminado correctamente' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al eliminar autor' });
+    next(err);
   }     
 });
 
