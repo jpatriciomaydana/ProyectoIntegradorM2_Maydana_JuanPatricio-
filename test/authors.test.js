@@ -1,0 +1,39 @@
+const request = require('supertest');
+const app = require('../app');
+const pool = require('../db/dbInit');
+
+describe('Authors API', () => {
+  test('POST /authors crea un nuevo autor', async () => {
+    const response = await request(app)
+      .post('/authors')
+      .send({
+        name: 'Test Author',
+        email: `test${Date.now()}@example.com`,
+        bio: 'Bio de prueba'
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.name).toBe('Test Author');
+    expect(response.body.id).toBeDefined();
+  });
+
+  test('GET /authors/:id debería devolver un autor existente', async () => {
+    const newAuthorResponse = await request(app)
+      .post('/authors')
+      .send({
+        name: 'Test Author',
+        email: `test${Date.now()}@example.com`,
+        bio: 'Bio de prueba'
+      });
+
+    const authorId = newAuthorResponse.body.id;
+    const response = await request(app).get(`/authors/${authorId}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.id).toBe(authorId);
+  });
+
+  afterAll(async () => {
+    await pool.end();
+  });
+});
