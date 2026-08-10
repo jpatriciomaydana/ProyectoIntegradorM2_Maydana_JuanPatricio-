@@ -1,4 +1,4 @@
-const pool = require('../db/dbInit');
+const pool = require('../db/dbconnect');
 
 async function getAllPosts() {
   const result = await pool.query('SELECT * FROM posts ORDER BY id');

@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const pool = require('../db/dbInit');
+const pool = require('../db/dbconnect');
 
 describe('Authors API', () => {
   test('POST /authors crea un nuevo autor', async () => {
@@ -8,7 +8,7 @@ describe('Authors API', () => {
       .post('/authors')
       .send({
         name: 'Test Author',
-        email: `test${Date.now()}@example.com`,
+        email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
         bio: 'Bio de prueba'
       });
 
@@ -22,7 +22,7 @@ describe('Authors API', () => {
       .post('/authors')
       .send({
         name: 'Test Author',
-        email: `test${Date.now()}@example.com`,
+        email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
         bio: 'Bio de prueba'
       });
 
