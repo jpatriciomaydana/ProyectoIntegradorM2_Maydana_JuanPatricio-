@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const pool = require('../db/dbconnect');
+const pool = require('../db/dbInit');
 
 describe('Posts API', () => {
     test('POST /posts crea un nuevo post', async () => {

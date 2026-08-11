@@ -13,6 +13,9 @@ app.use('/authors', authorsRouter);
 const postsRouter = require('./routes/posts');
 app.use('/posts', postsRouter);
 
+const commentsRouter = require('./routes/comments');
+app.use('/comments', commentsRouter);
+
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./openapi.yaml');

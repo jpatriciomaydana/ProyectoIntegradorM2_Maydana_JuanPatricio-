@@ -56,7 +56,7 @@ INSERT INTO authors (name, email, bio) VALUES
  ('María López', 'maria@example.com', 'Ingeniera de software con foco en APIs REST');
 
 
- INSERT INTO posts (title, content, author_id, content) VALUES
+ INSERT INTO posts (title, content, author_id, published) VALUES
 
  ('Introducción a Node.js', 'Node.js es un runtime de JavaScript...', 1, true),
 
@@ -70,12 +70,13 @@ INSERT INTO authors (name, email, bio) VALUES
 
  INSERT INTO comments (post_id, author_id, content) VALUES
 
- (1, 'Luis Fernández', 'Excelente artículo sobre Node.js!'),
+(1, NULL, 'Excelente artículo sobre Node.js!'),  
+      
+(2, NULL, 'Muy útil la comparación entre PostgreSQL y MySQL.'),
 
- (2, 'Sofía Martínez', 'Muy útil la comparación entre PostgreSQL y MySQL.'),
+(3, NULL, 'Gracias por la explicación sobre REST.'),
 
- (3, 'Javier Torres', 'Gracias por la explicación sobre REST.'),
-
- (1, 'Ana García', 'Me alegra que te haya gustado!'),
-
- (4, 'Carlos Ruiz', 'Espero que el manejo de errores te sea útil.');
+(1, 1,    'Me alegra que te haya gustado!'),       
+      
+(4, 2,    'Espero que el manejo de errores te sea útil.');
+ 

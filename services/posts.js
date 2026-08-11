@@ -1,4 +1,4 @@
-const pool = require('../db/dbconnect');
+const pool = require('../db/dbInit'); //importa la instancia de Pool desde dbInit.js
 
 async function getAllPosts() {
   const result = await pool.query('SELECT * FROM posts ORDER BY id');
