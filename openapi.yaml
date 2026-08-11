@@ -169,15 +169,8 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
-          description: Autor eliminado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+        '204':
+          description: Autor eliminado correctamente (sin contenido)
         '404':
           description: Autor no encontrado
           content:
@@ -326,15 +319,8 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
-          description: Post eliminado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+        '204':
+          description: Post eliminado correctamente (sin contenido)
         '404':
           description: Post no encontrado
           content:
@@ -344,7 +330,7 @@ paths:
 
   /posts/author/{authorId}:
     get:
-      summary: Obtener todos los posts de un autor específico
+      summary: Obtener todos los posts de un autor específico, con detalle del autor
       tags:
         - Posts
       parameters:
@@ -356,13 +342,13 @@ paths:
             type: integer
       responses:
         '200':
-          description: Lista de posts del autor (puede estar vacía)
+          description: Lista de posts del autor, incluyendo nombre y email del autor
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Post'
+                  $ref: '#/components/schemas/PostWithAuthor'
 
 components:
   schemas:
@@ -409,6 +395,37 @@ components:
           type: string
           format: date-time
           description: Fecha de creación del registro
+
+    PostWithAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único del post
+        title:
+          type: string
+          description: Título del post
+        content:
+          type: string
+          description: Contenido del post
+        author_id:
+          type: integer
+          description: ID del autor que escribió el post
+        published:
+          type: boolean
+          description: Indica si el post está publicado
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación del registro
+        author_name:
+          type: string
+          description: Nombre del autor (incluido mediante JOIN)
+        author_email:
+          type: string
+          format: email
+          description: Email del autor (incluido mediante JOIN)
+
 
     Error:
       type: object
