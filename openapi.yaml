@@ -3,7 +3,7 @@ info:
   title: MiniBlog API
   version: 1.0.0
   description: |
-    Documentación Swagger/OpenAPI del Proyecto Integrador FT77 — DevSpark.
+    Documentación Swagger/OpenAPI del Proyecto Integrador FT77.
     
     API REST para gestionar autores y posts de MiniBlog, el servicio de contenidos de DevSpark.
 
