@@ -63,18 +63,17 @@ async function updatePost(req, res, next) {//actualiza un post existente
     }   
 }
 
-async function deletePost(req, res, next) {//elimina un post existente
-    try {
-        const deletedPost = await postsService.deletePost(req.params.id);//llama a la función deletePost del servicio de posts para eliminar un post existente          
-        if (!deletedPost) {
-            return res.status(404).json({ error: 'Post no encontrado' });
-        }       
-        res.json({ message: 'Post eliminado correctamente' });//envía la respuesta en formato JSON con un mensaje de éxito
-    } catch (err) {
-        next(err);
-    }   
+async function deletePost(req, res, next) {
+  try {
+    const deletedPost = await postsService.deletePost(req.params.id);
+    if (!deletedPost) {
+      return res.status(404).json({ error: 'Post no encontrado' });
+    }
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }
-
 module.exports = {
   getAllPosts,
   getPostById,

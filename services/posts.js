@@ -11,7 +11,22 @@ async function getPostById(id) {
 }
 
 async function getPostsByAuthorId(authorId) {
-  const result = await pool.query('SELECT * FROM posts WHERE author_id = $1', [authorId]);
+  const result = await pool.query(
+    `SELECT 
+       posts.id,
+       posts.title,
+       posts.content,
+       posts.author_id,
+       posts.published,
+       posts.created_at,
+       authors.name AS author_name,
+       authors.email AS author_email
+     FROM posts
+     JOIN authors ON posts.author_id = authors.id
+     WHERE posts.author_id = $1
+     ORDER BY posts.id`,
+    [authorId]
+  );
   return result.rows;
 }
 

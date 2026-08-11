@@ -58,21 +58,20 @@ describe('Authors API', () => {
   });
 
   test('DELETE /authors/:id elimina un autor existente', async () => {
-    const newAuthorResponse = await request(app)
-      .post('/authors')
-      .send({
-        name: 'Test Author to Delete',
-        email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
-        bio: 'Bio de prueba'
-      });
+  const newAuthorResponse = await request(app)
+    .post('/authors')
+    .send({
+      name: 'Test Author to Delete',
+      email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
+      bio: 'Bio de prueba'
+    });
 
-    const authorId = newAuthorResponse.body.id;
+  const authorId = newAuthorResponse.body.id;
 
-    const response = await request(app).delete(`/authors/${authorId}`);
+  const response = await request(app).delete(`/authors/${authorId}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body.message).toBe('Autor eliminado correctamente');
-  });
+  expect(response.status).toBe(204);
+});
 
   afterAll(async () => {
     await pool.end();

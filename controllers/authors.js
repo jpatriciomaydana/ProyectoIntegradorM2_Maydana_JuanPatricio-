@@ -52,13 +52,13 @@ async function updateAuthor(req, res, next) {//actualiza un autor existente
   }
 }
 
-async function deleteAuthor(req, res, next) {//elimina un autor existente
+async function deleteAuthor(req, res, next) {
   try {
     const deletedAuthor = await authorsService.deleteAuthor(req.params.id);
     if (!deletedAuthor) {
       return res.status(404).json({ error: 'Autor no encontrado' });
     }
-    res.json({ message: 'Autor eliminado correctamente' });
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
