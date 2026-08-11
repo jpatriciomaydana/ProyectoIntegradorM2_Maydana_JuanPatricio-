@@ -1,4 +1,4 @@
-const pool = require('./dbconnect');//importa el pool de conexión ya configurado
+const pool = require('./dbInit');//importa el pool de conexión ya configurado
 
 async function initDb() {
   try {
