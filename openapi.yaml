@@ -5,7 +5,7 @@ info:
   description: |
     Documentación Swagger/OpenAPI del Proyecto Integrador FT77.
     
-    API REST para gestionar autores y posts de MiniBlog, el servicio de contenidos de DevSpark.
+    API REST para gestionar autores, posts y comentarios de MiniBlog, el servicio de contenidos de DevSpark.
 
 servers:
   - url: http://localhost:3000
@@ -30,6 +30,7 @@ paths:
                   status:
                     type: string
                     example: "OK"
+
   /authors:
     get:
       summary: Obtener todos los autores
@@ -330,7 +331,7 @@ paths:
 
   /posts/author/{authorId}:
     get:
-      summary: Obtener todos los posts de un autor específico, con detalle del autor
+      summary: Obtener todos los posts de un autor específico
       tags:
         - Posts
       parameters:
@@ -342,13 +343,187 @@ paths:
             type: integer
       responses:
         '200':
-          description: Lista de posts del autor, incluyendo nombre y email del autor
+          description: Lista de posts del autor
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/PostWithAuthor'
+
+  /comments:
+    get:
+      summary: Obtener todos los comentarios
+      tags:
+        - Comments
+      responses:
+        '200':
+          description: Lista de comentarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+
+    post:
+      summary: Crear un nuevo comentario
+      tags:
+        - Comments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - post_id
+                - content
+              properties:
+                post_id:
+                  type: integer
+                  description: ID del post comentado
+                author_id:
+                  type: integer
+                  nullable: true
+                  description: ID del autor (opcional / nulo si es anónimo)
+                content:
+                  type: string
+                  description: Contenido del comentario
+      responses:
+        '201':
+          description: Comentario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Datos inválidos (falta post_id o content)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /comments/{id}:
+    get:
+      summary: Obtener un comentario por ID
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del comentario
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comentario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: Comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Actualizar un comentario existente
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del comentario
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  description: Nuevo contenido del comentario
+      responses:
+        '200':
+          description: Comentario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Eliminar un comentario existente
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del comentario
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comentario eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  comment:
+                    $ref: '#/components/schemas/Comment'
+        '404':
+          description: Comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /comments/post/{postId}:
+    get:
+      summary: Obtener todos los comentarios de un post específico
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID del post
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de comentarios del post
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
 
 components:
   schemas:
@@ -401,23 +576,17 @@ components:
       properties:
         id:
           type: integer
-          description: ID único del post
         title:
           type: string
-          description: Título del post
         content:
           type: string
-          description: Contenido del post
         author_id:
           type: integer
-          description: ID del autor que escribió el post
         published:
           type: boolean
-          description: Indica si el post está publicado
         created_at:
           type: string
           format: date-time
-          description: Fecha de creación del registro
         author_name:
           type: string
           description: Nombre del autor (incluido mediante JOIN)
@@ -426,6 +595,30 @@ components:
           format: email
           description: Email del autor (incluido mediante JOIN)
 
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único del comentario
+        post_id:
+          type: integer
+          description: ID del post asociado
+        author_id:
+          type: integer
+          nullable: true
+          description: ID del autor asociado
+        content:
+          type: string
+          description: Texto del comentario
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        author_name:
+          type: string
+          nullable: true
+          description: Nombre del autor (incluido mediante LEFT JOIN)
 
     Error:
       type: object
