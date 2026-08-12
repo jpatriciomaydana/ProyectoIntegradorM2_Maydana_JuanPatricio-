@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const pool = require('../db/dbInit');
+const pool = require('../db/connection');
 
 describe('Posts API', () => {
     test('POST /posts crea un nuevo post', async () => {
@@ -35,7 +35,8 @@ describe('Posts API', () => {
     }); 
 
     afterAll(async () => {
+      await pool.query(`DELETE FROM authors WHERE bio = 'Bio de prueba para post'`);
       await pool.end();
-    }); 
+    });
 });
 

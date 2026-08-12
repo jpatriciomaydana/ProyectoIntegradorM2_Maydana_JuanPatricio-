@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const pool = require('../db/dbInit');
+const pool = require('../db/connection');
 
 describe('Authors API', () => {
   test('POST /authors crea un nuevo autor', async () => {
@@ -73,7 +73,8 @@ describe('Authors API', () => {
   expect(response.status).toBe(204);
 });
 
-  afterAll(async () => {
+   afterAll(async () => {
+    await pool.query(`DELETE FROM authors WHERE email LIKE 'test%@example.com' OR email LIKE 'updated%@example.com'`);
     await pool.end();
   });
 });
