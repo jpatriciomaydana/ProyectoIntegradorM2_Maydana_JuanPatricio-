@@ -12,6 +12,9 @@ La API se encuentra desplegada y operativa en los siguientes endpoints de produc
 
 * 🌐 **URL Pública / Health Check:** [https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/health](https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/health)
 
+
+
+
 * 📚 **Documentación Interactiva (Swagger UI):** [https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/api-docs](https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/api-docs)
 
 ---
