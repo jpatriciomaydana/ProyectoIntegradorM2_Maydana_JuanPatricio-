@@ -3,6 +3,9 @@ const app = require('../app');
 const pool = require('../db/connection');
 
 describe('Authors API', () => {
+
+  // --- CRUD EXITOSO ---
+
   test('POST /authors crea un nuevo autor', async () => {
     const response = await request(app)
       .post('/authors')
@@ -15,6 +18,13 @@ describe('Authors API', () => {
     expect(response.status).toBe(201);
     expect(response.body.name).toBe('Test Author');
     expect(response.body.id).toBeDefined();
+  });
+
+  test('GET /authors debería devolver una lista de todos los autores', async () => {
+    const response = await request(app).get('/authors');
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
   });
 
   test('GET /authors/:id debería devolver un autor existente', async () => {
@@ -58,22 +68,42 @@ describe('Authors API', () => {
   });
 
   test('DELETE /authors/:id elimina un autor existente', async () => {
-  const newAuthorResponse = await request(app)
-    .post('/authors')
-    .send({
-      name: 'Test Author to Delete',
-      email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
-      bio: 'Bio de prueba'
-    });
+    const newAuthorResponse = await request(app)
+      .post('/authors')
+      .send({
+        name: 'Test Author to Delete',
+        email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
+        bio: 'Bio de prueba'
+      });
 
-  const authorId = newAuthorResponse.body.id;
+    const authorId = newAuthorResponse.body.id;
 
-  const response = await request(app).delete(`/authors/${authorId}`);
+    const response = await request(app).delete(`/authors/${authorId}`);
 
-  expect(response.status).toBe(204);
-});
+    expect(response.status).toBe(204);
+  });
 
-   afterAll(async () => {
+  // --- CASOS DE ERROR ---
+
+  test('POST /authors debería devolver 400 si faltan campos requeridos', async () => {
+    const response = await request(app)
+      .post('/authors')
+      .send({
+        bio: 'Falta nombre y email'
+      });
+
+    expect(response.status).toBe(400);
+  });
+
+  test('GET /authors/:id debería devolver 404 si el autor no existe', async () => {
+    const response = await request(app).get('/authors/999999');
+
+    expect(response.status).toBe(404);
+  });
+
+  // --- LIMPIEZA FINAL ---
+
+  afterAll(async () => {
     await pool.query(`DELETE FROM authors WHERE email LIKE 'test%@example.com' OR email LIKE 'updated%@example.com'`);
     await pool.end();
   });

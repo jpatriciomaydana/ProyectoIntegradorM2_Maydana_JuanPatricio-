@@ -3,40 +3,116 @@ const app = require('../app');
 const pool = require('../db/connection');
 
 describe('Posts API', () => {
-    test('POST /posts crea un nuevo post', async () => {
-        // Primero, crea un autor para asociarlo con el post
-        const newAuthorResponse = await request(app)
-          .post('/authors')
-            .send({
-                name: 'Test Author for Post',
-                email: `test${Date.now()}_${Math.random().toString(36).substring(2, 8)}@example.com`,
-                bio: 'Bio de prueba para post'
-            });
+  let authorId;
 
-        const authorId = newAuthorResponse.body.id;
+  // Creamos un autor previo para poder asociar los posts
+  beforeAll(async () => {
+    const authorRes = await request(app)
+      .post('/authors')
+      .send({
+        name: 'Post Tester',
+        email: `post_tester_${Date.now()}@example.com`,
+        bio: 'Bio para posts'
+      });
+    authorId = authorRes.body.id;
+  });
 
-        const response = await request(app)
-            .post('/posts')
-            .send({
-                title: 'Test Post',
-                content: 'Contenido de prueba',
-                author_id: authorId
-            }); 
+  // --- CRUD EXITOSO ---
 
-        expect(response.status).toBe(201);
-        expect(response.body.title).toBe('Test Post');
-        expect(response.body.id).toBeDefined();
-    });
-   
-    test('DELETE /posts/:id debería devolver 404 si el post no existe', async () => {
-        const response = await request(app).delete('/posts/99999999');
-        expect(response.status).toBe(404);
-        expect(response.body.error).toBe('Post no encontrado');
-    }); 
+  test('POST /posts crea un nuevo post', async () => {
+    const response = await request(app)
+      .post('/posts')
+      .send({
+        title: 'Título de Prueba',
+        content: 'Contenido de prueba para el post',
+        author_id: authorId
+      });
 
-    afterAll(async () => {
-      await pool.query(`DELETE FROM authors WHERE bio = 'Bio de prueba para post'`);
-      await pool.end();
-    });
+    expect(response.status).toBe(201);
+    expect(response.body.title).toBe('Título de Prueba');
+    expect(response.body.id).toBeDefined();
+  });
+
+  test('GET /posts devuelve la lista completa de posts', async () => {
+    const response = await request(app).get('/posts');
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
+  test('GET /posts/:id devuelve un post existente por ID', async () => {
+    const newPostRes = await request(app)
+      .post('/posts')
+      .send({
+        title: 'Post para GET',
+        content: 'Contenido',
+        author_id: authorId
+      });
+
+    const postId = newPostRes.body.id;
+    const response = await request(app).get(`/posts/${postId}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.id).toBe(postId);
+  });
+
+  test('PUT /posts/:id actualiza un post existente', async () => {
+    const newPostRes = await request(app)
+      .post('/posts')
+      .send({
+        title: 'Post Original',
+        content: 'Contenido Original',
+        author_id: authorId
+      });
+
+    const postId = newPostRes.body.id;
+    const response = await request(app)
+      .put(`/posts/${postId}`)
+      .send({
+        title: 'Post Modificado',
+        content: 'Contenido Modificado',
+        author_id: authorId
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.title).toBe('Post Modificado');
+  });
+
+  test('DELETE /posts/:id elimina un post existente', async () => {
+    const newPostRes = await request(app)
+      .post('/posts')
+      .send({
+        title: 'Post para Borrar',
+        content: 'Contenido borrable',
+        author_id: authorId
+      });
+
+    const postId = newPostRes.body.id;
+    const response = await request(app).delete(`/posts/${postId}`);
+
+   expect(response.status).toBe(204);
+  });
+
+  // --- CASOS DE ERROR ---
+
+  test('POST /posts devuelve 400 si faltan campos obligatorios', async () => {
+    const response = await request(app)
+      .post('/posts')
+      .send({
+        title: 'Sin contenido ni autor'
+      });
+
+    expect(response.status).toBe(400);
+  });
+
+  test('DELETE /posts/:id devuelve 404 si el post no existe', async () => {
+    const response = await request(app).delete('/posts/999999');
+
+    expect(response.status).toBe(404);
+  });
+
+  afterAll(async () => {
+    await pool.query(`DELETE FROM authors WHERE email LIKE 'post_tester_%@example.com'`);
+    await pool.end();
+  });
 });
-
