@@ -1,4 +1,5 @@
 const commentsService = require('../services/comments');
+const postsService = require('../services/posts');
 
 function isValidId(id) {
   return /^\d+$/.test(id);
@@ -35,6 +36,12 @@ async function getCommentsByPostId(req, res, next) {
     if (!isValidId(postId)) {
       return res.status(400).json({ error: 'El postId debe ser un número' });
     }
+
+    const postExists = await postsService.getPostById(postId);
+    if (!postExists) {
+      return res.status(404).json({ error: 'Post no encontrado' });
+    }
+
     const comments = await commentsService.getCommentsByPostId(postId);
     res.json(comments);
   } catch (error) {
