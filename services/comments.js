@@ -1,4 +1,4 @@
-const pool = require('../db/dbInit'); //importa la instancia de Pool desde dbInit.js
+const pool = require('../db/connection'); //importa la instancia de Pool desde connection.js
 
 async function getAllComments() {
   const result = await pool.query(
