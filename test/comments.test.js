@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const pool = require('../db/dbInit'); // O la ruta a tu pool/dbInit
+const pool = require('../db/connection');
 
 describe('Endpoints de Comments', () => {
   afterAll(async () => {
