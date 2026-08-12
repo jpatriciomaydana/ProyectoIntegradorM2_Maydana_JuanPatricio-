@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "start": "node index.js",
-    "dev": "node --watch index.js"
-  },
+  "start": "node index.js",
+  "dev": "node --watch index.js",
+  "test": "jest",
+  "db:init": "node db/initDb.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
