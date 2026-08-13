@@ -135,6 +135,43 @@ npm run dev
 
 La API estará corriendo en `http://localhost:3000` y la documentación interactiva en `http://localhost:3000/api-docs`.
 
+## 🚂 Guía de Deployment en Railway
+
+### Cómo se desplegó
+
+1. Se creó un proyecto en Railway y se conectó al repositorio de GitHub (deploy automático en cada `git push` a la rama principal).
+2. Se agregó un servicio de **PostgreSQL** (plugin nativo de Railway) dentro del mismo proyecto.
+3. Railway detecta automáticamente que es una app Node.js (via `package.json`) y ejecuta `npm install` + `npm start`.
+4. Una vez desplegado, se corrió `npm run db:init` una única vez contra la base de datos de producción para crear las tablas y cargar los datos semilla (ver sección "Variables de entorno" para cómo conectarse desde tu máquina local a la base de producción si necesitás repetir este paso).
+
+### Variables de entorno en Railway
+
+En el servicio de la API (no en el de Postgres), configurar en la pestaña **Variables**:
+
+| Variable | Valor |
+|---|---|
+| `DB_HOST` | `${{Postgres.PGHOST}}` |
+| `DB_PORT` | `${{Postgres.PGPORT}}` |
+| `DB_NAME` | `${{Postgres.PGDATABASE}}` |
+| `DB_USER` | `${{Postgres.PGUSER}}` |
+| `DB_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
+| `PORT` | `3000` |
+
+> La sintaxis `${{Postgres.VARIABLE}}` es la forma que tiene Railway de referenciar automáticamente las variables del plugin de Postgres sin tener que copiarlas a mano. Si tu servicio de base de datos en Railway tiene otro nombre (no "Postgres"), reemplazalo por el nombre real que le pusiste.
+
+### URL interna vs. URL pública
+
+Railway expone dos tipos de conexión para cada servicio:
+
+* **URL interna (privada):** algo como `<nombre-servicio>.railway.internal`. Solo es alcanzable *entre servicios dentro del mismo proyecto* de Railway (por ejemplo, es la que usa tu API para hablar con la base de datos en producción). No tiene costo de red saliente y es más rápida. Es el valor que resuelve automáticamente `${{Postgres.PGHOST}}` de la tabla de arriba.
+* **URL pública:** `https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app`. Es la que usa cualquier cliente externo (navegador, Postman, el evaluador) para acceder a la API desde internet. Es la misma que ya está linkeada al principio de este README.
+
+Si necesitás conectarte a la base de datos de producción **desde tu propia máquina** (por ejemplo, para correr `npm run db:init` una vez más), Railway también expone una URL pública de conexión a Postgres (con proxy TCP) — la encontrás en la pestaña **Connect** del servicio de Postgres en el dashboard, con el nombre `DATABASE_PUBLIC_URL` o similar.
+
+### Health check
+
+Railway usa el endpoint `GET /health` (ya implementado en `app.js`) para verificar que el servicio esté vivo después de cada deploy.
+
 ---
 
 ## 🧪 Testing Automatizado
@@ -192,7 +229,7 @@ Todas las soluciones implementadas fueron revisadas, testeadas, comprendidas y a
 En la carpeta screenshots se encuentran capturas de ejemplos de prompts con la IA.
  
 
-[text](<../Prompts IA>)
+
 
 ---
 
