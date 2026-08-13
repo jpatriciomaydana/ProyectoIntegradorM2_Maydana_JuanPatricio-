@@ -11,10 +11,6 @@ El proyecto está construido utilizando **Node.js**, **Express**, **PostgreSQL**
 La API se encuentra desplegada y operativa en los siguientes endpoints de producción:
 
 * 🌐 **URL Pública / Health Check:** [https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/health](https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/health)
-
-
-
-
 * 📚 **Documentación Interactiva (Swagger UI):** [https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/api-docs](https://proyectointegradorm2maydanajuanpatricio-production.up.railway.app/api-docs)
 
 ---
@@ -36,95 +32,170 @@ La API se encuentra desplegada y operativa en los siguientes endpoints de produc
 El código está estructurado bajo el principio de separación de responsabilidades en 3 capas:
 
 ```text
-├── src/
-│   ├── db/
-│   │   ├── pool.js         # Configuración del pool de conexión a PostgreSQL
-│   │   └── setup.sql       # Script DDL/DML de la base de datos (Tablas + Seeds)
-│   ├── services/           # Capa de Acceso a Datos / Lógica de Negocio
-│   │   ├── authorService.js
-│   │   ├── postService.js
-│   │   └── commentService.js
-│   ├── controllers/        # Capa de Controladores (Manejo de Request/Response)
-│   │   ├── authorController.js
-│   │   ├── postController.js
-│   │   └── commentController.js
-│   ├── routes/             # Capa de Enrutamiento
-│   │   ├── authorRoutes.js
-│   │   ├── postRoutes.js
-│   │   ├── commentRoutes.js
-│   │   └── healthRoutes.js
-│   └── app.js              # Inicialización y middleware de Express
-├── test/                   # Pruebas integradas y unitarias
+├── db/
+│   ├── dbInit.js        # Configuración del pool de conexión a PostgreSQL
+│   ├── initDb.js        # Script para crear tablas + cargar datos semilla (idempotente)
+│   └── setup.sql        # Script DDL/DML de la base de datos (Tablas + Seeds)
+├── services/            # Capa de Acceso a Datos / Lógica de Negocio
+│   ├── authors.js
+│   ├── posts.js
+│   └── comments.js
+├── controllers/         # Capa de Controladores (Manejo de Request/Response)
+│   ├── authors.js
+│   ├── posts.js
+│   └── comments.js
+├── routes/              # Capa de Enrutamiento
+│   ├── authors.js
+│   ├── posts.js
+│   └── comments.js
+├── middlewares/
+│   └── errorHandler.js  # Middleware global de manejo de errores
+├── test/                # Pruebas integradas
 │   ├── authors.test.js
 │   ├── posts.test.js
 │   └── comments.test.js
-├── openapi.yaml            # Especificación de OpenAPI 3.1.1
-├── index.js                # Punto de entrada del servidor
-├── .env.example            # Plantilla de variables de entorno
+├── openapi.yaml         # Especificación de OpenAPI 3.1.1
+├── app.js               # Inicialización y middleware de Express (incluye /health y /api-docs)
+├── index.js             # Punto de entrada del servidor
+├── .env.example         # Plantilla de variables de entorno
 └── README.md
+```
 
-📊 Modelo de Datos (PostgreSQL)
+---
 
-La base de datos cuenta con tres entidades principales vinculadas mediante claves foráneas y la restricción ON DELETE CASCADE para asegurar la integridad referencial:
-1.	authors: Guarda la información de los creadores de contenido (ID, Nombre, Email único, Bio, Fecha de registro).
-2.	posts: Almacena las publicaciones asociadas a un autor (ID, Título, Contenido, ID Autor, Estado de publicación, Fecha de creación).
-3.	comments: Mantiene los comentarios realizados sobre un post (ID, ID Post, ID Autor [opcional para comentarios anónimos], Contenido, Fecha de creación).
+## 📊 Modelo de Datos (PostgreSQL)
 
-⚙️ Configuración e Instalación Local
+La base de datos cuenta con tres entidades principales vinculadas mediante claves foráneas y restricciones relacionales (`ON DELETE CASCADE` / `SET NULL`) para asegurar la integridad referencial:
 
-Prerrequisitos
-•	Node.js (v18 o superior)
-•	npm
-•	Instancia local o remota de PostgreSQL
+* **authors**: Guarda la información de los creadores de contenido (ID, Nombre, Email único, Bio, Fecha de registro).
+* **posts**: Almacena las publicaciones asociadas a un autor (ID, Título, Contenido, ID Autor, Estado de publicación, Fecha de creación).
+* **comments**: Mantiene los comentarios realizados sobre un post (ID, ID Post, ID Autor [opcional], Contenido, Fecha de creación).
 
-Pasos de Instalación
+---
 
-1.	Clonar el repositorio:
-Bash
-git clone [https://github.com/TU_USUARIO/PROYECTOINTEGRADORM2_MAYDANAJUANPATRICIO.git](https://github.com/TU_USUARIO/PROYECTOINTEGRADORM2_MAYDANAJUANPATRICIO.git)
+## ⚙️ Configuración e Instalación Local
+
+### Prerrequisitos
+
+* Node.js (v18 o superior)
+* npm
+* Instancia local o remota de PostgreSQL
+
+### Pasos de Instalación
+
+**1. Clonar el repositorio:**
+
+```bash
+git clone https://github.com/TU_USUARIO/PROYECTOINTEGRADORM2_MAYDANAJUANPATRICIO.git
 cd PROYECTOINTEGRADORM2_MAYDANAJUANPATRICIO
+```
 
-2.	Instalar dependencias:
-Bash
+**2. Instalar dependencias:**
+
+```bash
 npm install
+```
 
-3.	Configurar variables de entorno: Copiá el archivo .env.example y renombralo a .env:
-Bash
+**3. Configurar variables de entorno:**
+
+Copiá el archivo `.env.example` y renombralo a `.env`:
+
+```bash
 cp .env.example .env
-Completá las credenciales de tu base de datos local en el .env:
-Fragmento de código
+```
+
+Completá las credenciales de tu base de datos local en el `.env`:
+
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=miniblog_db
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
 PORT=3000
-DATABASE_URL=postgres://tu_usuario:tu_contraseña@localhost:5432/miniblog_db
+```
 
-4.	Inicializar la base de datos: Ejecutá el script ubicado en src/db/setup.sql en tu cliente de PostgreSQL (pgAdmin, DBeaver o psql) para crear las tablas e insertar los datos iniciales.
+**4. Inicializar la base de datos:**
 
-5.	Iniciar el servidor en desarrollo:
-Bash
+Tenés dos opciones:
+
+* **Automática (recomendada):** corré el script que crea las tablas e inserta los datos semilla (es idempotente, podés correrlo más de una vez sin romper nada):
+
+  ```bash
+  npm run db:init
+  ```
+
+* **Manual:** ejecutá el script ubicado en `db/setup.sql` directamente en tu cliente de PostgreSQL (pgAdmin, DBeaver o `psql`).
+
+**5. Iniciar el servidor en desarrollo:**
+
+```bash
 npm run dev
+```
 
-La API estará corriendo en http://localhost:3000 y la documentación interactiva en http://localhost:3000/api-docs.
+La API estará corriendo en `http://localhost:3000` y la documentación interactiva en `http://localhost:3000/api-docs`.
 
-🧪 Ejecución de Tests
+---
 
-Las pruebas automatizadas están desarrolladas con Jest y Supertest para validar las respuestas HTTP y el correcto funcionamiento de la API.
-Para ejecutar la suite completa de tests:
-Bash
+## 🧪 Testing Automatizado
+
+El proyecto cuenta con una suite de pruebas de integración desarrolladas con Jest y Supertest, cubriendo el CRUD y sus respectivos casos de error para las tres entidades.
+
+### Cobertura de Tests (20/20 Pasados):
+
+**Authors** (`test/authors.test.js`):
+* `POST /authors`: Crear autor.
+* `GET /authors`: Obtener lista de autores.
+* `GET /authors/:id`: Obtener autor por ID.
+* `PUT /authors/:id`: Actualizar autor.
+* `DELETE /authors/:id`: Eliminar autor.
+* Errores: 400 (datos faltantes) y 404 (autor inexistente).
+
+**Posts** (`test/posts.test.js`):
+* `POST /posts`: Crear post.
+* `GET /posts`: Obtener lista de posts.
+* `GET /posts/:id`: Obtener post por ID.
+* `PUT /posts/:id`: Actualizar post.
+* `DELETE /posts/:id`: Eliminar post.
+* Errores: 400 (faltan datos requeridos) y 404 (post inexistente al eliminar).
+
+**Comments** (`test/comments.test.js`):
+* `POST /comments`: Crear comentario.
+* `GET /comments`: Obtener todos los comentarios.
+* `GET /comments/:id`: Obtener comentario por ID.
+* `PUT /comments/:id`: Actualizar comentario.
+* `DELETE /comments/:id`: Eliminar comentario.
+* Errores: 400 (falta del campo `content`).
+
+> ⚠️ **Antes de entregar:** corré `npm test` una vez y confirmá que el resultado real coincide con "20/20 Pasados". Si el número final es distinto, actualizá esta sección para que coincida exactamente con lo que muestra la terminal — un número incorrecto acá es peor que no ponerlo.
+
+### Ejecución de Tests
+
+Para ejecutar la suite de pruebas localmente:
+
+```bash
 npm test
+```
 
-🤖 Declaración sobre el uso de Inteligencia Artificial
+---
+
+## 🤖 Declaración sobre el uso de Inteligencia Artificial
 
 Durante el desarrollo de este proyecto integrador se hizo uso de asistentes de Inteligencia Artificial (Gemini / Claude) como herramienta de soporte técnico para:
 
-•   Consultas de errores y guia en solucion 
-•	La revisión de sintaxis y diseño del esquema OpenAPI 3.1.1 en YAML.
-•	La optimización de las consultas SQL parametrizadas para prevenir inyecciones SQL.
-•	La estructuración del flujo de trabajo.
-Todas las soluciones implementadas fueron revisadas, testeadas, comprendidas y adaptadas manualmente por el autor para garantizar el cumplimiento estricto de los requisitos del proyecto.
+* Consultas de errores y guía en soluciones de depuración.
+* La revisión de sintaxis y diseño del esquema OpenAPI 3.1.1 en YAML.
+* La optimización de las consultas SQL parametrizadas para prevenir inyecciones SQL.
+* La estructuración del flujo de trabajo y cobertura de pruebas integradas.
 
-Aqui algunos ejemplos:
+Todas las soluciones implementadas fueron revisadas, testeadas, comprendidas y adaptadas manualmente para garantizar el cumplimiento estricto de los requisitos del proyecto.
+En la carpeta screenshots se encuentran capturas de ejemplos de prompts con la IA.
+ 
 
+[text](<../Prompts IA>)
 
+---
 
+## 👤 Autor
 
-👤 Autor
-•	Juan Patricio Maydana — Estudiante de Desarrollo Full Stack (FT77)
+Juan Patricio Maydana — Estudiante de Desarrollo Full Stack (FT77)
