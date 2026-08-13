@@ -192,7 +192,7 @@ Todas las soluciones implementadas fueron revisadas, testeadas, comprendidas y a
 En la carpeta screenshots se encuentran capturas de ejemplos de prompts con la IA.
  
 
-[text](<../Prompts IA>)
+
 
 ---
 
